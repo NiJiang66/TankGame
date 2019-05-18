@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "TankBarrel.h"
 #include "TankTurret.h"
+#include "Projectile.h"
 #include "TankAimingComponent.generated.h"
 
 UENUM(BlueprintType)
@@ -51,7 +52,7 @@ public:
 	float LaunchSpeed = 10000.f;
 
 	UPROPERTY(EditAnywhere, Category = "SetUp")
-	TSubclassOf<class AProjectile> ProjectileType;
+	TSubclassOf<AProjectile> ProjectileType;
 
 	UPROPERTY(BlueprintReadOnly)
 	EFiringState FiringState = EFiringState::Aiming;

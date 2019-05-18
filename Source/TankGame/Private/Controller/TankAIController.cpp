@@ -52,14 +52,13 @@ void ATankAIController::Tick(float DeltaTime)
 		//向玩家移动
 		MoveToActor(GetPlayerTank(), AcceptanceRedius);
 
-		float Distance = FVector::Distance(GetPlayerTank()->GetActorLocation(), GetControlledTank()->GetActorLocation());
-		if (Distance > AcceptanceRedius)return;
-
 		//开火
 		UTankAimingComponent* AimingComponent = GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
 		AimingComponent->AimAt(GetPlayerTank()->GetActorLocation());
 		if (AimingComponent->FiringState == EFiringState::Locked)
 		{
+			float Distance = FVector::Distance(GetPlayerTank()->GetActorLocation(), GetControlledTank()->GetActorLocation());
+			if (Distance > AcceptanceRedius + 500.f)return;
 			AimingComponent->Fire();
 		}
 	}

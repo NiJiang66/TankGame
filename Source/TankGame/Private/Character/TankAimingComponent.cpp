@@ -3,8 +3,6 @@
 
 #include "TankAimingComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "TGHelper.h"
-#include "Projectile.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -60,7 +58,6 @@ void UTankAimingComponent::Fire()
 {
 	bool bIsReload = (FPlatformTime::Seconds() - LastFireTime) > TankReloadTime;
 	if (!bIsReload)return;
-	TGHelper::DeBug("Fire");
 	if (!Barrel || !Turret)return;
 
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(
