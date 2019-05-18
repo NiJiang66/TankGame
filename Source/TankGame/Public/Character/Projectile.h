@@ -41,4 +41,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UParticleSystemComponent* ImpactParticle = nullptr;
 
-};
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class URadialForceComponent* ExplosionForce = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "SetUp")
+	float ProjectileDamage = 20.f;
+};	

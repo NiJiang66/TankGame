@@ -2,6 +2,7 @@
 
 
 #include "Tank.h"
+#include "TGHelper.h"
 
 // Sets default values
 ATank::ATank()
@@ -28,5 +29,33 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	int32 MidDamage = FPlatformMath::RoundToInt(DamageAmount);
+	int32 DamageToApply = FMath::Clamp<int32>(MidDamage, 0, CurrentHP);
+	CurrentHP -= DamageToApply;
+
+	if (CurrentHP <= 0)
+	{
+		OnTankDeath.Broadcast();
+	}
+	return CurrentHP;
+}
+
+float ATank::GetHealthPercentage()
+{
+	return (float)CurrentHP / (float)MaxHP;
+}
+
+void ATank::ResetTankHealth()
+{
+	CurrentHP = MaxHP;
+}
+
+void ATank::AddTankHealth(int32 HpToAdd)
+{
+	CurrentHP = FMath::Clamp<int32>((CurrentHP + HpToAdd), 0, MaxHP);
 }
 

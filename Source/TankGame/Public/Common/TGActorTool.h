@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-//#include "GameFramework/Actor.h"
 #include "EngineUtils.h"
 #include "TGActorTool.generated.h"
 

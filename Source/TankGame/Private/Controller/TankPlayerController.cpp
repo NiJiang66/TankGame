@@ -7,6 +7,11 @@
 #include "TGActorTool.h"
 #include "TGCommand.h"
 #include "TankAimingComponent.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/PlayerStart.h"
+#include "TimerManager.h"
+#include "Engine/EngineTypes.h"
+
 
 ATankPlayerController::ATankPlayerController()
 {
@@ -36,6 +41,17 @@ void ATankPlayerController::BeginPlay()
 	}
 }
 
+void ATankPlayerController::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+	if (InPawn)
+	{
+		ATank* PossessedTank = Cast<ATank>(InPawn);
+		if (!PossessedTank)return;
+		PossessedTank->OnTankDeath.AddUniqueDynamic(this, &ATankPlayerController::OnControlledTankDeath);
+	}
+}
+
 void ATankPlayerController::Tick(float DeltaSeconds)
 {
 	AimToTarget();
@@ -48,6 +64,8 @@ ATank* ATankPlayerController::GetControlledTank()
 
 void ATankPlayerController::AimToTarget()
 {
+	if (!GetPawn())return;
+
 	FVector HitLocation;
 	if (GetSightRayHitLocation(HitLocation))
 	{
@@ -90,4 +108,32 @@ bool ATankPlayerController::GetLookVectorHitLocaiton(FVector LookDirection, FVec
 
 	OutHitLocaiton = FVector::ZeroVector;
 	return false;
+}
+
+void ATankPlayerController::OnControlledTankDeath()
+{
+	PlayerTank = GetControlledTank();
+
+	//StartSpectatingOnly();//进入观察者模式
+	PlayerState->bIsSpectator = true;
+	ChangeState(NAME_Spectating);
+	
+	GetWorldTimerManager().SetTimer(TankRespawnHandel, this, &ATankPlayerController::TankRespawn, RespawnTime, false);
+}
+
+void ATankPlayerController::TankRespawn()
+{
+	GetWorldTimerManager().ClearTimer(TankRespawnHandel);
+
+	APlayerStart* FirstStart;
+	UTGActorTool::GetFirstActor<APlayerStart>(GetWorld(), FirstStart);
+
+	if (PlayerTank&&FirstStart)
+	{
+		PlayerTank->ResetTankHealth();
+		PlayerTank->SetActorTransform(FirstStart->GetActorTransform());
+		Possess(PlayerTank);
+		PlayerState->bIsSpectator = false;
+		ChangeState(NAME_Playing);
+	}
 }

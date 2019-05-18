@@ -26,6 +26,8 @@ public:
 
 	virtual void BeginPlay()override;
 
+	virtual void SetPawn(APawn* InPawn)override;
+
 	virtual void Tick(float DeltaSeconds);
 
 	/** 获得控制的坦克 */
@@ -38,9 +40,22 @@ public:
 
 	bool GetLookVectorHitLocaiton(FVector LookDirection, FVector& OutHitLocaiton);
 
+	UFUNCTION()
+	void OnControlledTankDeath();
+
+	UFUNCTION()
+	void TankRespawn();
+
+
 private:
+	UPROPERTY(EditAnywhere)
+	float RespawnTime = 5.f;
 
 	UPROPERTY(EditAnywhere)
-		float LineTraceRange = 100000.f;
+	float LineTraceRange = 100000.f;
+
+	struct FTimerHandle TankRespawnHandel;
+
+	ATank* PlayerTank = nullptr;
 
 };

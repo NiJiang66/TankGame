@@ -5,6 +5,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -19,12 +21,16 @@ AProjectile::AProjectile()
 	CollisionMesh->SetNotifyRigidBodyCollision(true);//
 
 	LaunchParticle = CreateDefaultSubobject<UParticleSystemComponent>(FName("LaunchParticle"));
-	LaunchParticle->AttachTo(RootComponent);
+	LaunchParticle->SetupAttachment(RootComponent);
 	LaunchParticle->SetAutoActivate(true);
 
 	ImpactParticle = CreateDefaultSubobject<UParticleSystemComponent>(FName("ImpactParticle"));
-	ImpactParticle->AttachTo(RootComponent);
+	ImpactParticle->SetupAttachment(RootComponent);
 	ImpactParticle->SetAutoActivate(false);
+
+	ExplosionForce = CreateDefaultSubobject<URadialForceComponent>(FName("ExplosionForce"));
+	ExplosionForce->SetupAttachment(RootComponent);
+	ExplosionForce->SetAutoActivate(false);
 }
 
 // Called when the game starts or when spawned
@@ -50,5 +56,19 @@ void AProjectile::LaunchProjectile(float Speed)
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	ImpactParticle->Activate();
+	CollisionMesh->SetNotifyRigidBodyCollision(false);
+	SetRootComponent(ImpactParticle);
+	CollisionMesh->DestroyComponent();
+
+	ExplosionForce->FireImpulse();
+
+	UGameplayStatics::ApplyRadialDamage(
+		this,
+		ProjectileDamage,
+		GetActorLocation(),
+		ExplosionForce->Radius,
+		UDamageType::StaticClass(),
+		TArray<AActor*>()
+	);
 }
 

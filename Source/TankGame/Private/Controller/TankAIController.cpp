@@ -32,11 +32,22 @@ void ATankAIController::BeginPlay()
 	}
 }
 
+void ATankAIController::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+	if (InPawn)
+	{
+		ATank* PossessedTank = Cast<ATank>(InPawn);
+		if (!PossessedTank)return;
+		PossessedTank->OnTankDeath.AddUniqueDynamic(this, &ATankAIController::OnControlledTankDeath);
+	}
+}
+
 void ATankAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GetControlledTank())
+	if (GetControlledTank()&& GetPlayerTank())
 	{
 		//ÏòÍæ¼ÒÒÆ¶¯
 		MoveToActor(GetPlayerTank(), AcceptanceRedius);
@@ -62,4 +73,13 @@ ATank* ATankAIController::GetControlledTank()
 class ATank* ATankAIController::GetPlayerTank()
 {
 	return Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
+}
+
+void ATankAIController::OnControlledTankDeath()
+{
+	if (GetControlledTank())
+	{
+		GetControlledTank()->DetachFromControllerPendingDestroy();
+		//GetControlledTank()->Destroy();
+	}
 }
