@@ -15,7 +15,7 @@ namespace TGHelper
 
 		if (GEngine && Duration >= 0)
 		{
-			GEngine->AddOnScreenDebugMessage(Key, Duration, Color, Message);
+			//GEngine->AddOnScreenDebugMessage(Key, Duration, Color, Message);
 		}
 	}
 
